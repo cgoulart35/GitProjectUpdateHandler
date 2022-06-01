@@ -17,7 +17,7 @@ parentDir = str(pathlib.Path(__file__).parent.parent.absolute()).replace("\\",'/
 supported_projects = ["GBot"]
 async def callUpdateScript(name):
     await asyncio.sleep(10)
-    os.system(parentDir + "/GitProjectUpdateHandler/scripts/Update" + name + ".sh")
+    os.system(parentDir + "/GitProjectUpdateHandler/Scripts/Update" + name + ".sh")
 
 # start flask API
 app = Flask(__name__)
@@ -34,8 +34,12 @@ class GitProjectUpdateHandler(Resource):
                 projectName = value["application"]
                 projectDirectory = parentDir + "/" + projectName
                 g = git.cmd.Git(projectDirectory)
-                msg = g.pull()
 
+                # reset any current changes
+                g.reset('--hard')
+                # pull latest code
+                msg = g.pull()
+                # stage property files and rebuild the docker container
                 if msg != "Already up to date.":
                     def entryFunction(name):
                         asyncio.run(callUpdateScript(name))
