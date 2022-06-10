@@ -1,10 +1,14 @@
 #region IMPORTS
 import pathlib
 import os
+import logging
+import time
 import threading
 import asyncio
 import git
 import json
+from urllib.error import URLError
+from urllib.request import urlopen
 from flask import Flask, request, abort
 from flask_restful import Api, Resource
 from flask_cors import CORS
@@ -12,6 +16,29 @@ from flask_cors import CORS
 
 # get parent directory
 parentDir = str(pathlib.Path(__file__).parent.parent.absolute()).replace("\\",'/')
+
+if not os.path.exists(parentDir + '/GitProjectUpdateHandler/Logs'):
+    os.mkdir(parentDir + '/GitProjectUpdateHandler/Logs')
+LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
+file_handler = logging.FileHandler(filename = parentDir + '/GitProjectUpdateHandler/Logs/GitProjectUpdateHandler.log')
+logging.basicConfig(handlers = [file_handler],
+                    format = LOG_FORMAT,
+                    level = logging.INFO)
+logger = logging.getLogger()
+
+def waitForInternet():
+    while True:
+        try:
+            urlopen('http://google.com')
+            logger.info('Internet connection established.')
+            return
+        except URLError:
+            time.sleep(2)
+            logger.info('Waiting for internet connection...')
+            pass
+
+# don't start update handler API until internet connection established
+waitForInternet()
 
 # define supported projects
 supported_projects = ["GBot"]
@@ -46,8 +73,13 @@ class GitProjectUpdateHandler(Resource):
 
                     threading.Thread(target = entryFunction, args = (projectName,)).start()
 
-                return { "status": "success", "message": msg }
+                responseObj = { "status": "success", "message": msg }
+                logger.info(json.dumps({ "application": projectName, "reponse": responseObj }))
+                return responseObj
 
+            responseObj = { "status": "error", "message": "Error: Invalid request." }
+            logger.info(json.dumps({ "application": projectName, "reponse": responseObj }))
+            return responseObj
         except:
             abort(400, "Error: Unhandled exception.")
 
