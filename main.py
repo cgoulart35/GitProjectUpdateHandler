@@ -41,7 +41,7 @@ def waitForInternet():
 waitForInternet()
 
 # define supported projects
-supported_projects = ["GBot"]
+supported_projects = ["GBot", "HalloweenEvent"]
 async def callUpdateScript(name):
     await asyncio.sleep(10)
     os.system(parentDir + "/GitProjectUpdateHandler/Scripts/Update" + name + ".sh")
