@@ -3,7 +3,6 @@ Git Project Update Handler is a Flask API project to make the deployment process
 
 ## Supported Projects
 - [GBot](https://github.com/cgoulart35/GBot-Docs) - A Dockerized Python Discord bot, for fun!
-- [HalloweenEvent](https://github.com/cgoulart35/HalloweenEvent) - A QR code based game where players scan each other's codes to fight for points!
 
 ## API
 
